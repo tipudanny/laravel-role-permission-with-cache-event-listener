@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
@@ -97,5 +98,16 @@ class AuthController extends Controller
     public function guard()
     {
         return Auth::guard();
+    }
+
+    public function verify($id, $hash)
+    {
+        $user = User::findOrFail($id);
+        if ($user->remember === $hash){
+            $user->email_verified_at = Carbon::now();
+            return response()->json(['data'=>'verified']);
+        }
+        return response()->json(['data'=>'Not verified']);
+
     }
 }

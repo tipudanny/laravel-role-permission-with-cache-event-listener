@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Events\UserCreated;
 use App\Models\User;
 use App\Notifications\NewUserRegistration;
 use Illuminate\Contracts\Queue\ShouldQueue;
