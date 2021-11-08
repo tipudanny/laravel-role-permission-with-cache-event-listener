@@ -64,7 +64,7 @@ class UserController extends Controller
             //Event::listen('UserCreated', $user);
             //\event(new UserCreated($user));
 
-            return response()->json(['data'=> 'User registration successfully.' ],201);
+            return response()->json(['data'=> 'User registration successfully. Please verify your Email Address.' ],201);
         }
         catch (Throwable $e){
             report($e);

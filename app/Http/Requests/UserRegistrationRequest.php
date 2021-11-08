@@ -6,6 +6,8 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
 class UserRegistrationRequest extends FormRequest
 {
     /**
@@ -20,7 +22,8 @@ class UserRegistrationRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-           'password' => Hash::make($this->password)
+            'password' => Hash::make($this->password),
+            'email_verification_token' => Str::random(100)
         ]);
     }
 
@@ -34,7 +37,8 @@ class UserRegistrationRequest extends FormRequest
         return [
             'name'      => 'required',
             'email'     => 'required|email|unique:users',
-            'password'  =>'required'
+            'password'  =>'required',
+            'email_verification_token'  =>'required',
         ];
     }
 

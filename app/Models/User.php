@@ -4,14 +4,13 @@ namespace App\Models;
 
 use App\Events\UserCreated;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject,MustVerifyEmail
+class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -24,6 +23,7 @@ class User extends Authenticatable implements JWTSubject,MustVerifyEmail
         'name',
         'email',
         'password',
+        'email_verification_token',
     ];
 
     /**
@@ -34,6 +34,7 @@ class User extends Authenticatable implements JWTSubject,MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verification_token',
     ];
 
     /**
@@ -46,7 +47,8 @@ class User extends Authenticatable implements JWTSubject,MustVerifyEmail
     ];
 
     protected $dispatchesEvents = [
-        'created' => Registered::class,
+        //'created' => Registered::class,
+        'created' => UserCreated::class,
     ];
 
     // Rest omitted for brevity
@@ -78,6 +80,11 @@ class User extends Authenticatable implements JWTSubject,MustVerifyEmail
     public function has_permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Permission::class,'user_has_permissions');
+    }
+
+    public function getEmailVerifiedAttribute($value)
+    {
+        return $value === 1 ? true : false;
     }
 
 }

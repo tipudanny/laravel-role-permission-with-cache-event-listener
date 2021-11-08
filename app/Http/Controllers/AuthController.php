@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login']]);
+        $this->middleware('auth:api', ['except' => ['login','verify']]);
     }
 
     /**
@@ -41,15 +42,13 @@ class AuthController extends Controller
     /**
      * Get the authenticated User
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function me()
     {
-        $user = User::with([
-            'has_role',
-            'has_permissions',
-        ])->find(auth()->id());
-        return response()->json($user);
+        $user = Auth::user();
+        //return response()->json(['data'=>$user]);
+        return UserResource::collection(['data'=>$user]);
     }
 
     /**
@@ -86,7 +85,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => $this->guard()->factory()->getTTL() * 60
+            'expires_in' => $this->guard()->factory()->getTTL() * 3600
         ]);
     }
 
@@ -100,14 +99,17 @@ class AuthController extends Controller
         return Auth::guard();
     }
 
-    public function verify($id, $hash)
+    public function verify($id, $token)
     {
         $user = User::findOrFail($id);
-        if ($user->remember === $hash){
+        if ($user->email_verification_token === $token){
+            $user->email_verified = 1;
             $user->email_verified_at = Carbon::now();
-            return response()->json(['data'=>'verified']);
+            $user->email_verification_token = '';
+            $user->save();
+            return response()->json(['data'=>'You are now Verified User.Thanks !! You can login now.']);
         }
-        return response()->json(['data'=>'Not verified']);
+        return response()->json(['data'=>'Token is Not valid.']);
 
     }
 }
