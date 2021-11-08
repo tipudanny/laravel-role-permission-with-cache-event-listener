@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Events\UserCreated;
+use App\Events\UserDeleted;
+use App\Events\UserUpdated;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -48,7 +50,9 @@ class User extends Authenticatable implements JWTSubject
 
     protected $dispatchesEvents = [
         //'created' => Registered::class,
-        'created' => UserCreated::class,
+        'created'   => UserCreated::class,
+        'saved'     => UserUpdated::class,
+        'deleted'   => UserDeleted::class,
     ];
 
     // Rest omitted for brevity
@@ -75,11 +79,12 @@ class User extends Authenticatable implements JWTSubject
 
     public function has_role(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Role::class,'user_has_roles');
+        return $this->belongsToMany(Role::class, 'user_has_roles');
     }
+
     public function has_permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Permission::class,'user_has_permissions');
+        return $this->belongsToMany(Permission::class, 'user_has_permissions');
     }
 
     public function getEmailVerifiedAttribute($value)

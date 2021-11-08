@@ -20,6 +20,7 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'email_verified' => $this->email_verified,
             'role'=>HasRoleResource::collection($this->has_role),
             'permissions'=>HasPermissionResource::collection($this->has_permissions),
         ];

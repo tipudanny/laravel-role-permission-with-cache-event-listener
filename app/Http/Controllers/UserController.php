@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\NewUserRegistration;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Throwable;
@@ -17,18 +18,19 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(): \Illuminate\Http\JsonResponse
+    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $user = cache('users',function (){
-            User::with(['has_role', 'has_permissions'])->get();
+        $page = (request()->has('page')) ? request()->get('page') : 1 ;
+        $user = Cache::tags('users')->rememberForever('users'.$page,function (){
+            return User::with(['has_role', 'has_permissions'])->latest()->paginate();
         });
-        return response()->json([
+        /*return response()->json([
             'data'=> $user
-        ]);
+        ]);*/
 
-        //return UserResource::collection($user);
+        return UserResource::collection($user);
     }
 
     /**
