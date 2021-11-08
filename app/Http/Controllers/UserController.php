@@ -17,19 +17,18 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(): \Illuminate\Http\JsonResponse
     {
-        $user = User::with([
-            'has_role',
-            'has_permissions',
-        ])->get();
-        /*return response()->json([
+        $user = cache('users',function (){
+            User::with(['has_role', 'has_permissions'])->get();
+        });
+        return response()->json([
             'data'=> $user
-        ]);*/
+        ]);
 
-        return UserResource::collection($user);
+        //return UserResource::collection($user);
     }
 
     /**
