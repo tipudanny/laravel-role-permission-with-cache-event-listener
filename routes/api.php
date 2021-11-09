@@ -13,7 +13,7 @@ Route::group(['middleware' => 'api',], function ($router) {
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('me', [AuthController::class, 'me']);
 
-    Route::resource('user',UserController::class);
+    Route::resource('users',UserController::class);
 
     Route::get('/email/verify/{id}/{token}',[AuthController::class, 'verify'] );
 });

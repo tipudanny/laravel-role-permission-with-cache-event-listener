@@ -7,8 +7,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
-class UserRegistrationRequest extends FormRequest
+class UserUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -18,14 +19,6 @@ class UserRegistrationRequest extends FormRequest
     public function authorize()
     {
         return true;
-    }
-    protected function prepareForValidation()
-    {
-        $password = !empty($this->password) ? $this->password : 'password';
-        $this->merge([
-            'password' => Hash::make($password),
-            'email_verification_token' => Str::random(100)
-        ]);
     }
 
     /**
@@ -37,9 +30,7 @@ class UserRegistrationRequest extends FormRequest
     {
         return [
             'name'      => 'required',
-            'email'     => 'required|email|unique:users',
-            'password'  =>'required',
-            'email_verification_token'  =>'required',
+            'email' => 'required|email|unique:users,email,'.$this->id,
         ];
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\UserCreated;
 use App\Http\Requests\UserRegistrationRequest;
+use App\Http\Requests\UserUpdateRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\NewUserRegistration;
@@ -99,11 +100,18 @@ class UserController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return array
      */
-    public function update(Request $request, $id)
+    public function update(UserUpdateRequest $request, $id)
     {
-        //
+        return $request->all();
+        try {
+            User::where('id',$id)->update($request->validated());
+            return response()->json(['data'=> 'User Update successfully.' ],201);
+        }
+        catch (Throwable $e){
+            report($e);
+        }
     }
 
     /**
