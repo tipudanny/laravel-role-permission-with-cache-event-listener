@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Events\UserCreated;
+use App\Http\Requests\ChangePassword;
 use App\Http\Requests\UserRegistrationRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\NewUserRegistration;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Throwable;
 
@@ -100,18 +103,52 @@ class UserController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return array
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UserUpdateRequest $request, $id)
+    public function update(UserUpdateRequest $request, $id): JsonResponse
     {
-        return $request->all();
-        try {
-            User::where('id',$id)->update($request->validated());
-            return response()->json(['data'=> 'User Update successfully.' ],201);
+        //This will NOT fire the update event:
+        //User::where('id',$id)->update($request->validated());
+
+        //This will fire the update event:
+        $user = User::find($id);
+        //Case: You need to retrieve the user from the database and then save that user in order to fire the event.
+
+        if (!empty($user)){
+            try {
+                $user->update($request->validated());
+                return response()->json(['data'=> 'User Update successfully.' ],201);
+            }
+            catch (Throwable $e){
+                report($e);
+            }
         }
-        catch (Throwable $e){
-            report($e);
+        return response()->json(['data'=> 'Invalid request' ]);
+    }
+    /*
+     * Change User Password
+     *
+     * */
+    public function changePassword(ChangePassword $request, $id)
+    {
+        $user = User::find($id);
+
+        if (!empty($user)){
+
+            if(!Hash::check( $request->current_password , $user->password)){
+                return response()->json(['error'=> 'Current Password wrong !! Try Again.' ],422);
+            }
+
+            if(!Hash::check($request->password, $user->password)){
+                $user->update([
+                    'password' => Hash::make($request->password)
+                ]);
+                return response()->json(['success'=> 'Password Changed Successfully.' ],201);
+            }
+            return response()->json(['error'=> 'New Password should not be same as Old Password.' ],422);
+
         }
+        return response()->json(['error'=> 'Invalid request' ],422);
     }
 
     /**

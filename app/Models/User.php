@@ -51,7 +51,7 @@ class User extends Authenticatable implements JWTSubject
     protected $dispatchesEvents = [
         //'created' => Registered::class,
         'created'   => UserCreated::class,
-        'saved'     => UserUpdated::class,
+        'updated'     => UserUpdated::class,
         'deleted'   => UserDeleted::class,
     ];
 
