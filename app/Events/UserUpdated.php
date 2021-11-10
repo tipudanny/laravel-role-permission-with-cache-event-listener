@@ -11,13 +11,10 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class UserUpdated
+class UserUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var User
-     */
     private $user;
 
     /**
@@ -25,9 +22,14 @@ class UserUpdated
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct($user)
     {
         $this->user = $user;
+    }
+
+    public function broadcastWith()
+    {
+        return ['user' => $this->user];
     }
 
     /**
@@ -37,6 +39,6 @@ class UserUpdated
      */
     public function broadcastOn()
     {
-        return [];
+        return new Channel('user-info-updated');
     }
 }

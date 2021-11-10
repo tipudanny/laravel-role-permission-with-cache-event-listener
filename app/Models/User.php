@@ -92,4 +92,9 @@ class User extends Authenticatable implements JWTSubject
         return $value === 1 ? true : false;
     }
 
+    public function scopeUnverified($query)
+    {
+        return $query->where('email_verified',0);
+    }
+
 }
