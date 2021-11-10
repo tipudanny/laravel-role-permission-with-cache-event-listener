@@ -16,6 +16,7 @@ Route::group(['middleware' => 'api',], function ($router) {
 
         Route::resource('users',UserController::class);
         Route::post('users/change-password/{id}',[UserController::class,'changePassword']);
+
     });
 
     Route::get('/email/verify/{id}/{token}',[AuthController::class, 'verify'] );
